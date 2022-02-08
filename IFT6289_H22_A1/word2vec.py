@@ -48,24 +48,18 @@ def naive_softmax_loss_and_gradient(
 
     # grad_input_vec, grad_output_vecs
 
-    ### END YOUR CODE
-    
     # input_vector:  (embedding_dim,1)
     # output_vectors: (vocab_size,embedding_dim)
 
-    scores = np.matmul(output_vectors, input_vector)   # (vocab_size,1)
-    # print(scores.shape)
-    probs = softmax(scores)                          # (vocab_size,1)  y_hat
+    score_vector = np.matmul(output_vectors, input_vector)   # (vocab_size,1)
+    # print(score_vector.shape)
+    prob_vector = softmax(score_vector)                          # (vocab_size,1)  y_hat
 
-    loss = -np.log(probs[output_word_idx])
+    loss = -np.log(prob_vector[output_word_idx])
 
-    dscores = probs.copy()   # (vocab_size,1)
-    dscores[output_word_idx] = dscores[output_word_idx] - 1   #  y_hat minus y
+    dscores = probabilities.copy()   # (vocab_size,1)
+    dscores[output_word_idx] -= 1   #  y_hat minus y
     grad_input_vec = np.matmul(output_vectors.T, dscores)  # (embedding_dim,1)
-
-    # print(dscores.shape) # (5,)
-    # print(input_vector.shape) # (3,)
-    # exit()
 
     grad_output_vecs = np.outer(dscores, input_vector) # (vocab_size,embedding_dim)
 
@@ -99,9 +93,8 @@ def neg_sampling_loss_and_gradient(
     # Negative sampling of words is done for you.
     neg_sample_word_indices = get_negative_samples(output_word_idx, dataset, K)
     indices = [output_word_idx] + neg_sample_word_indices
-
-    neg_sample_word_indices = get_negative_samples(output_word_idx, dataset, K)
-    indices = [output_word_idx] + neg_sample_word_indices
+    ### YOUR CODE HERE (~10 Lines)
+    ### Please use your implementation of sigmoid in here.
 
     grad_input_vec   = np.zeros(input_vector.shape)
     grad_output_vecs = np.zeros(output_vectors.shape)
@@ -116,12 +109,10 @@ def neg_sampling_loss_and_gradient(
     for i in range(K):
         neg_id = indices[i+1]
         u_k = output_vectors[neg_id]
-        z = sigmoid(-np.dot(u_k,input_vector))
+        z = sigmoid(-np.dot(u_k, input_vector))
         loss -= np.log(z)
         grad_input_vec += u_k*(1-z)
         grad_output_vecs[neg_id] += input_vector*(1-z)
-    ### YOUR CODE HERE (~10 Lines)
-    ### Please use your implementation of sigmoid in here.
 
     ### END YOUR CODE
 
@@ -164,23 +155,19 @@ def skipgram(current_input_word, window_size, output_words, word2_ind,
     grad_output_vecs = np.zeros(output_vectors.shape)
 
     ### YOUR CODE HERE (~8 Lines)
-    loss = 0.0
-    grad_input_vecs = np.zeros(input_vectors.shape)
-    grad_output_vecs = np.zeros(output_vectors.shape)
 
-    ### YOUR CODE HERE
     center_id = word2_ind[current_input_word]
-    centerWordVec = input_vectors[center_id]
+    center_word_vec = input_vectors[center_id]
+
     for word in output_words:
         outside_id = word2_ind[word]
-        loss_mini, gradCenter_mini, gradOutside_mini= \
-        word2vec_loss_and_gradient(centerWordVec,
+        loss_mini, grad_center_mini, grad_outside_mini= \
+        word2vec_loss_and_gradient(center_word_vec,
             outside_id, output_vectors, dataset)
         loss += loss_mini
-        # print(grad_input_vecs[center_id].shape, gradCenter_mini.shape)
-        # exit()
-        grad_input_vecs[center_id] += gradCenter_mini
-        grad_output_vecs += gradOutside_mini
+        grad_input_vecs[center_id] += grad_center_mini
+        grad_output_vecs += grad_outside_mini
+
     ### END YOUR CODE
 
     return loss, grad_input_vecs, grad_output_vecs
