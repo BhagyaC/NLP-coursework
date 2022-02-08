@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+import os
 import random
 
 import numpy as np
@@ -21,8 +21,9 @@ class A1dataset:
         self._sentences = None
         self._dataset = dataset
 
+        app_root = os.path.dirname(os.path.abspath(__file__))
         if not path:
-            path = "data"
+            path = os.path.join(app_root, "data")
 
         self.path = path
         self.table_size = table_size
@@ -64,7 +65,7 @@ class A1dataset:
             return self._sentences
 
         sentences = []
-        with open("/data/penntreebank/sentences.txt", "r") as f:
+        with open(self.path + f"/{self._dataset}/sentences.txt", "r") as f:
         # with open(self.path + f"/{self._dataset}/sentences.txt", "r") as f:
             for line in f:
                 splitted = line.strip().split()

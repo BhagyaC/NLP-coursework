@@ -174,8 +174,8 @@ def skipgram(current_input_word, window_size, output_words, word2_ind,
     for word in output_words:
         outside_id = word2_ind[word]
         loss_mini, gradCenter_mini, gradOutside_mini= \
-        word2vec_loss_and_gradient(centerWordVec=centerWordVec,
-            outsideWordIdx=outside_id,output_vectors=output_vectors,dataset=dataset)
+        word2vec_loss_and_gradient(centerWordVec,
+            outside_id, output_vectors, dataset)
         loss += loss_mini
         # print(grad_input_vecs[center_id].shape, gradCenter_mini.shape)
         # exit()
